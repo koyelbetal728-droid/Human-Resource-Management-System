@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexHR | Premium Human Resource Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center relative p-6">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-500/20 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="w-full max-w-md glass p-10 rounded-[32px] shadow-2xl relative z-10 animate-fade-in border border-white/20">
+            <div class="flex flex-col items-center mb-10">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-indigo-900/40">
+                    <i data-lucide="layers" class="text-white w-8 h-8"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight">Nex<span class="gradient-text">HR</span></h1>
+                <p class="text-slate-400 mt-2 text-sm">Enterprise Human Resource Portal</p>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                        <input type="email" id="login-email" value="admin@nexhr.ai" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all text-slate-100 placeholder:text-slate-600" placeholder="name@company.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Access Pin</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"></i>
+                        <input type="password" id="login-pass" value="••••••••" class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all text-slate-100 placeholder:text-slate-600" placeholder="Enter password">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between px-1">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-offset-slate-900">
+                        <span class="text-sm text-slate-400 group-hover:text-slate-300 transition-colors">Keep me signed in</span>
+                    </label>
+                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors font-medium">Forgot Access?</a>
+                </div>
+
+                <button onclick="app.handleLogin()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-900/40 transition-all active:scale-[0.98] mt-4">
+                    Enter Dashboard
+                </button>
+
+                <div class="pt-6 border-t border-slate-800 text-center">
+                    <p class="text-slate-500 text-xs">Login with <span class="text-indigo-400 font-bold">admin@nexhr.ai</span> for full access</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Application -->
+    <div id="main-app" class="hidden min-h-screen flex bg-[#020617]">
+        <!-- Sidebar -->
+        <aside class="w-72 border-r border-slate-800/60 bg-[#020617]/80 backdrop-blur-xl flex flex-col fixed h-full z-50">
+            <div class="p-8 pb-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="layers" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">Nex<span class="text-indigo-500">HR</span></span>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-1">
+                <button onclick="app.navigate('dashboard')" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-medium group active-nav" data-page="dashboard">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="app.navigate('attendance')" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white" data-page="attendance">
+                    <i data-lucide="clock" class="w-5 h-5"></i>
+                    <span>Attendance</span>
+                </button>
+                <button onclick="app.navigate('leaves')" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white" data-page="leaves">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span>Leave Desk</span>
+                </button>
+                <button onclick="app.navigate('payroll')" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white" data-page="payroll">
+                    <i data-lucide="indian-rupee" class="w-5 h-5"></i>
+                    <span>Payroll</span>
+                </button>
+                <button onclick="app.navigate('employees')" class="nav-link w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all font-medium text-slate-400 hover:bg-slate-800/50 hover:text-white" data-page="employees">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span>Employees</span>
+                </button>
+            </nav>
+
+            <div class="p-4 mt-auto">
+                <div class="bg-indigo-600/10 rounded-3xl p-6 border border-indigo-500/20 relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <p class="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-2">Workspace Pro</p>
+                        <p class="text-white text-sm font-medium mb-4">Unlock advanced HR analytics and cloud auto-sync.</p>
+                        <button class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all">Go Professional</button>
+                    </div>
+                </div>
+                
+                <button onclick="app.logout()" class="w-full mt-6 flex items-center gap-4 px-4 py-4 rounded-2xl text-rose-400 hover:bg-rose-500/10 transition-all font-bold">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="ml-72 flex-1 relative min-h-screen">
+            <!-- Topbar -->
+            <header class="h-24 sticky top-0 bg-[#020617]/60 backdrop-blur-xl z-40 px-10 flex items-center justify-between border-b border-slate-800/40">
+                <div>
+                    <h2 id="page-title" class="text-2xl font-bold tracking-tight">System Overview</h2>
+                    <p id="page-subtitle" class="text-slate-500 text-sm">Welcome back, Admin</p>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <div class="relative">
+                        <button class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-all">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-all">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full border-2 border-[#020617]"></span>
+                        </button>
+                    </div>
+                    <div class="h-10 w-px bg-slate-800"></div>
+                    <div class="flex items-center gap-4 group cursor-pointer">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold">Arjun Sharma</p>
+                            <p class="text-xs text-slate-500">Lead HR Manager</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 p-0.5 shadow-lg group-hover:scale-105 transition-all">
+                            <div class="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center overflow-hidden">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Arjun" alt="Profile" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="p-10 page-container animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                    <div class="glass-card p-6 rounded-[28px] group hover:scale-[1.02] hover:border-indigo-500/30 transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-400 text-xs font-bold">+12%</span>
+                        </div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Workforce</h3>
+                        <p class="text-3xl font-bold mt-1">1,284</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[28px] group hover:scale-[1.02] hover:border-blue-500/30 transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-400 text-xs font-bold">Live</span>
+                        </div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Present Today</h3>
+                        <p class="text-3xl font-bold mt-1">942</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[28px] group hover:scale-[1.02] hover:border-orange-500/30 transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                                <i data-lucide="clock" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-rose-400 text-xs font-bold">8 Pending</span>
+                        </div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Leave Requests</h3>
+                        <p class="text-3xl font-bold mt-1">24</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[28px] group hover:scale-[1.02] hover:border-purple-500/30 transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                <i data-lucide="award" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-400 text-xs font-bold">+2.4%</span>
+                        </div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest">Avg. Satisfaction</h3>
+                        <p class="text-3xl font-bold mt-1">4.8</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass-card rounded-[32px] overflow-hidden">
+                        <div class="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                            <h3 class="text-lg font-bold">Attendance Trends</h3>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-1.5 rounded-lg bg-slate-800 text-xs font-bold text-slate-300">Week</button>
+                                <button class="px-4 py-1.5 rounded-lg bg-indigo-600 text-xs font-bold text-white">Month</button>
+                            </div>
+                        </div>
+                        <div class="p-8 h-80 flex items-end justify-between gap-4">
+                            <!-- Simple Bar Chart -->
+                            <div class="flex-1 bg-slate-800/40 rounded-t-xl h-[60%] hover:bg-slate-700 transition-all relative group">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">82%</div>
+                            </div>
+                            <div class="flex-1 bg-slate-800/40 rounded-t-xl h-[85%] hover:bg-slate-700 transition-all relative group">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">94%</div>
+                            </div>
+                            <div class="flex-1 bg-indigo-500 rounded-t-xl h-[92%] hover:bg-indigo-400 transition-all relative group shadow-lg shadow-indigo-900/20">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-100">97%</div>
+                            </div>
+                            <div class="flex-1 bg-slate-800/40 rounded-t-xl h-[45%] hover:bg-slate-700 transition-all relative group">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">72%</div>
+                            </div>
+                            <div class="flex-1 bg-slate-800/40 rounded-t-xl h-[70%] hover:bg-slate-700 transition-all relative group">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">88%</div>
+                            </div>
+                            <div class="flex-1 bg-slate-800/40 rounded-t-xl h-[95%] hover:bg-slate-700 transition-all relative group">
+                                <div class="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-indigo-600 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">98%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-[32px] p-8">
+                        <h3 class="text-lg font-bold mb-6">Staff Distribution</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                    <span>Engineering</span>
+                                    <span>42%</span>
+                                </div>
+                                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full w-[42%] bg-indigo-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                    <span>Product Design</span>
+                                    <span>18%</span>
+                                </div>
+                                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full w-[18%] bg-purple-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                    <span>Sales & Marketing</span>
+                                    <span>32%</span>
+                                </div>
+                                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full w-[32%] bg-blue-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                    <span>Finance</span>
+                                    <span>8%</span>
+                                </div>
+                                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full w-[8%] bg-emerald-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-8 border-t border-white/5">
+                            <button class="w-full py-4 text-sm font-bold text-indigo-400 hover:text-white transition-all bg-indigo-600/5 hover:bg-indigo-600/20 rounded-2xl">Download Report</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attendance Page -->
+            <section id="page-attendance" class="hidden p-10 page-container animate-fade-in">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight mb-1">Time Tracker</h2>
+                        <p class="text-slate-500">Record your daily work activity and productivity</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="app.checkIn()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20 transition-all active:scale-95">
+                            <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+                            <span>Punch In</span>
+                        </button>
+                        <button onclick="app.checkOut()" class="px-8 py-3.5 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-rose-900/20 transition-all active:scale-95">
+                            <i data-lucide="square" class="w-4 h-4 fill-white"></i>
+                            <span>Punch Out</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="glass-card p-8 rounded-[32px] flex items-center gap-6">
+                        <div class="w-16 h-16 rounded-2xl bg-indigo-600/10 flex items-center justify-center text-indigo-400">
+                            <i data-lucide="timer" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Logged Today</p>
+                            <p id="timer-val" class="text-2xl font-extrabold mt-1">08h 42m</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 rounded-[32px] flex items-center gap-6">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-600/10 flex items-center justify-center text-purple-400">
+                            <i data-lucide="zap" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Efficiency Score</p>
+                            <p class="text-2xl font-extrabold mt-1">92.4%</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 rounded-[32px] flex items-center gap-6">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-600/10 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="history" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Recent Avg</p>
+                            <p class="text-2xl font-extrabold mt-1">09h 15m</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-[32px] overflow-hidden">
+                    <div class="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                        <h3 class="text-lg font-bold">Attendance Log</h3>
+                        <div class="relative">
+                            <input type="month" class="bg-slate-900 border border-slate-700/50 rounded-xl px-4 py-2 text-sm text-slate-300 outline-none focus:border-indigo-500 transition-all">
+                        </div>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-white/5 border-b border-white/5">
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Check-In</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Check-Out</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Work Duration</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-list" class="divide-y divide-white/5">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Leaves Page -->
+            <section id="page-leaves" class="hidden p-10 page-container animate-fade-in">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight mb-1">Leave Desk</h2>
+                        <p class="text-slate-500">Plan your time off and monitor allowance</p>
+                    </div>
+                    <button onclick="app.toggleLeaveModal()" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-900/20 transition-all">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Apply New Leave</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                    <div class="glass-card p-8 rounded-[32px] border-l-4 border-indigo-500">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Annual Allowance</p>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-extrabold">24</span>
+                            <span class="text-slate-400 mb-1 font-medium italic">/ 30 Days</span>
+                        </div>
+                        <p class="text-xs text-indigo-400 font-bold mt-4">Remaining Balance</p>
+                    </div>
+                    <div class="glass-card p-8 rounded-[32px] border-l-4 border-emerald-500">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Sick Leave Pool</p>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-extrabold">12</span>
+                            <span class="text-slate-400 mb-1 font-medium italic">/ 12 Days</span>
+                        </div>
+                        <p class="text-xs text-emerald-400 font-bold mt-4">Full Paid coverage</p>
+                    </div>
+                    <div class="glass-card p-8 rounded-[32px] border-l-4 border-purple-500">
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Compensatory Offs</p>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-extrabold">03</span>
+                            <span class="text-slate-400 mb-1 font-medium italic">Accumulated</span>
+                        </div>
+                        <p class="text-xs text-purple-400 font-bold mt-4">Expiring in 45 days</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-[32px] overflow-hidden">
+                    <div class="px-8 py-6 border-b border-white/5">
+                        <h3 class="text-lg font-bold">Past Applications</h3>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-white/5 border-b border-white/5">
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Type</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Duration</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Reason</th>
+                                <th class="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaves-list" class="divide-y divide-white/5">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Payroll Page -->
+            <section id="page-payroll" class="hidden p-10 page-container animate-fade-in">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-bold tracking-tight mb-1">Financial Portfolio</h2>
+                    <p class="text-slate-500">Earnings, deductions, and tax documentation</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-gradient-to-br from-indigo-700 via-indigo-600 to-purple-700 p-10 rounded-[32px] shadow-2xl relative overflow-hidden group">
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-start mb-10">
+                                    <div>
+                                        <p class="text-indigo-100 text-xs font-bold uppercase tracking-[0.2em] opacity-80">Annual Compensation</p>
+                                        <h3 class="text-5xl font-black mt-2 tracking-tighter text-white">₹18,50,000<span class="text-lg font-bold opacity-60 ml-2">CTC</span></h3>
+                                    </div>
+                                    <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-md border border-white/10 group-hover:rotate-12 transition-all duration-500">
+                                        <i data-lucide="trending-up" class="text-white w-8 h-8"></i>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                    <div class="p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5">
+                                        <p class="text-[10px] text-indigo-200 font-bold uppercase tracking-widest mb-1">Monthly In-Hand</p>
+                                        <p class="text-xl font-bold text-white">₹1,42,100</p>
+                                    </div>
+                                    <div class="p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5">
+                                        <p class="text-[10px] text-indigo-200 font-bold uppercase tracking-widest mb-1">Tax Savings</p>
+                                        <p class="text-xl font-bold text-white">₹85,000</p>
+                                    </div>
+                                    <div class="p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/5">
+                                        <p class="text-[10px] text-indigo-200 font-bold uppercase tracking-widest mb-1">Performance Bonus</p>
+                                        <p class="text-xl font-bold text-white">₹50,000</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
+                        </div>
+
+                        <div class="glass-card rounded-[32px] overflow-hidden">
+                            <div class="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                                <h3 class="text-lg font-bold">Salary Slips</h3>
+                                <div class="flex gap-2">
+                                    <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-500/20 uppercase tracking-widest">12 Cleared</span>
+                                </div>
+                            </div>
+                            <div id="payroll-list" class="divide-y divide-white/5">
+                                <!-- Dynamic Content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="glass-card p-8 rounded-[32px]">
+                            <h3 class="text-lg font-bold mb-6">Component Breakdown</h3>
+                            <div class="space-y-5">
+                                <div class="flex justify-between items-center group">
+                                    <span class="text-slate-400 font-medium group-hover:text-slate-200 transition-colors">Basic Salary</span>
+                                    <span class="font-bold text-slate-200 bg-slate-800 px-3 py-1 rounded-lg">₹75,000</span>
+                                </div>
+                                <div class="flex justify-between items-center group">
+                                    <span class="text-slate-400 font-medium group-hover:text-slate-200 transition-colors">H.R.A</span>
+                                    <span class="font-bold text-slate-200 bg-slate-800 px-3 py-1 rounded-lg">₹32,500</span>
+                                </div>
+                                <div class="flex justify-between items-center group">
+                                    <span class="text-slate-400 font-medium group-hover:text-slate-200 transition-colors">Special Allowance</span>
+                                    <span class="font-bold text-slate-200 bg-slate-800 px-3 py-1 rounded-lg">₹12,400</span>
+                                </div>
+                                <hr class="border-white/5">
+                                <div class="flex justify-between items-center text-rose-400">
+                                    <span class="font-medium italic">TDS / Deductions</span>
+                                    <span class="font-bold">− ₹12,180</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-8 rounded-[32px] bg-slate-900 border-indigo-500/20 relative overflow-hidden group">
+                            <h3 class="text-lg font-bold mb-3 relative z-10">Compliance 2024</h3>
+                            <p class="text-slate-400 text-sm mb-6 relative z-10 leading-relaxed">Your Form 16 and Tax Declaration for this cycle are now ready for review.</p>
+                            <button class="w-full py-4 bg-white text-slate-900 font-bold rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all relative z-10 shadow-lg shadow-white/5">
+                                <i data-lucide="file-text" class="w-5 h-5"></i>
+                                <span>Verify Declaration</span>
+                            </button>
+                            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Leaves -->
+    <div id="leave-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="glass w-full max-w-lg rounded-[32px] p-10 animate-fade-in shadow-2xl border border-white/20">
+            <h2 class="text-2xl font-bold mb-8 tracking-tight">Request Leave</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Leave Category</label>
+                    <select id="leave-type" class="w-full bg-slate-900 border border-slate-700/50 rounded-2xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="sick">Medical / Sick Leave</option>
+                        <option value="annual">Annual / Paid Leave</option>
+                        <option value="casual">Casual Leave</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Start Date</label>
+                        <input type="date" id="leave-start" class="w-full bg-slate-900 border border-slate-700/50 rounded-2xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">End Date</label>
+                        <input type="date" id="leave-end" class="w-full bg-slate-900 border border-slate-700/50 rounded-2xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Justification</label>
+                    <textarea id="leave-reason" rows="3" class="w-full bg-slate-900 border border-slate-700/50 rounded-2xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Provide context..."></textarea>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button onclick="app.toggleLeaveModal()" class="flex-1 py-4 bg-slate-800 text-slate-300 font-bold rounded-2xl hover:bg-slate-700 transition-all">Discard</button>
+                    <button onclick="app.submitLeave()" class="flex-1 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-900/40">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast UI -->
+    <div id="toast-container" class="fixed top-10 right-10 z-[200] space-y-4"></div>
+
+    <script>
+        // Core State & Logic
+        const app = {
+            state: {
+                user: JSON.parse(localStorage.getItem('nexhr_user')) || null,
+                currentPage: 'dashboard',
+                attendance: JSON.parse(localStorage.getItem('nexhr_attendance')) || [
+                    { date: '2024-03-27', checkIn: '09:00 AM', checkOut: '06:30 PM', duration: '9.5h', status: 'present' },
+                    { date: '2024-03-26', checkIn: '09:12 AM', checkOut: '06:05 PM', duration: '8.8h', status: 'present' }
+                ],
+                leaves: JSON.parse(localStorage.getItem('nexhr_leaves')) || [
+                    { type: 'sick', from: '2024-02-12', to: '2024-02-14', reason: 'Flu symptoms', status: 'approved' },
+                    { type: 'annual', from: '2024-04-05', to: '2024-04-10', reason: 'Family vacation', status: 'pending' }
+                ],
+                payroll: [
+                    { month: 'March', year: 2024, amt: '₹1,42,100', status: 'paid', id: 'SAL-6729' },
+                    { month: 'February', year: 2024, amt: '₹1,42,100', status: 'paid', id: 'SAL-6512' },
+                    { month: 'January', year: 2024, amt: '₹1,38,500', status: 'paid', id: 'SAL-6301' }
+                ]
+            },
+
+            init() {
+                lucide.createIcons();
+                if (this.state.user) {
+                    this.renderDashboard();
+                } else {
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }
+            },
+
+            handleLogin() {
+                this.state.user = { name: 'Arjun Sharma', role: 'admin' };
+                localStorage.setItem('nexhr_user', JSON.stringify(this.state.user));
+                this.toast('Login Successful', 'Welcome to NexHR enterprise portal', 'success');
+                this.renderDashboard();
+            },
+
+            logout() {
+                localStorage.removeItem('nexhr_user');
+                location.reload();
+            },
+
+            navigate(page) {
+                this.state.currentPage = page;
+                
+                // UI Updates
+                document.querySelectorAll('.page-container').forEach(p => p.classList.add('hidden'));
+                document.getElementById(`page-${page}`).classList.remove('hidden');
+                
+                document.querySelectorAll('.nav-link').forEach(l => {
+                    l.classList.remove('active-nav', 'bg-indigo-600/10', 'text-indigo-400');
+                    l.classList.add('text-slate-400');
+                    if(l.dataset.page === page) {
+                        l.classList.add('active-nav', 'bg-indigo-600/10', 'text-indigo-400');
+                        l.classList.remove('text-slate-400');
+                    }
+                });
+
+                // Header Update
+                const titles = { 
+                    dashboard: 'System Overview', 
+                    attendance: 'Time Tracker', 
+                    leaves: 'Leave Management', 
+                    payroll: 'Financial Statement',
+                    employees: 'Team Directory'
+                };
+                const subs = {
+                    dashboard: 'Real-time organization metrics',
+                    attendance: 'Track your productivity hours',
+                    leaves: 'Allowance and time-off tracker',
+                    payroll: 'Salaries and tax documentation',
+                    employees: 'Active member list'
+                }
+                document.getElementById('page-title').innerText = titles[page];
+                document.getElementById('page-subtitle').innerText = subs[page];
+
+                // Page Specific Renders
+                if(page === 'attendance') this.renderAttendance();
+                if(page === 'leaves') this.renderLeaves();
+                if(page === 'payroll') this.renderPayroll();
+            },
+
+            renderDashboard() {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                this.navigate('dashboard');
+            },
+
+            renderAttendance() {
+                const list = document.getElementById('attendance-list');
+                list.innerHTML = this.state.attendance.map(a => `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-8 py-5 text-sm font-bold">${a.date}</td>
+                        <td class="px-8 py-5 text-sm text-slate-400">${a.checkIn}</td>
+                        <td class="px-8 py-5 text-sm text-slate-400">${a.checkOut || '--'}</td>
+                        <td class="px-8 py-5 text-sm font-medium text-emerald-400">${a.duration || '--'}</td>
+                        <td class="px-8 py-5">
+                            <span class="px-4 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">${a.status}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            renderLeaves() {
+                const list = document.getElementById('leaves-list');
+                list.innerHTML = this.state.leaves.map(l => `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-8 py-5">
+                            <span class="px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 text-xs font-bold capitalize">${l.type}</span>
+                        </td>
+                        <td class="px-8 py-5 text-sm font-bold">${l.from} → ${l.to}</td>
+                        <td class="px-8 py-5 text-sm text-slate-400 max-w-xs truncate">${l.reason}</td>
+                        <td class="px-8 py-5">
+                            <span class="px-4 py-1.5 rounded-xl ${l.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-orange-500/10 text-orange-400'} text-xs font-bold border ${l.status === 'approved' ? 'border-emerald-500/20' : 'border-orange-500/20'} capitalize">${l.status}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            },
+
+            renderPayroll() {
+                const list = document.getElementById('payroll-list');
+                list.innerHTML = this.state.payroll.map(p => `
+                    <div class="px-8 py-6 flex items-center justify-between group hover:bg-white/5 transition-all">
+                        <div class="flex items-center gap-5">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600/20 group-hover:text-indigo-400 transition-all">
+                                <i data-lucide="file-check" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold">${p.month} ${p.year}</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">${p.id}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-10">
+                            <div class="text-right">
+                                <p class="text-sm font-black text-indigo-400">${p.amt}</p>
+                                <p class="text-[10px] text-emerald-400 uppercase font-bold mt-1 flex items-center gap-1 justify-end">
+                                    <i data-lucide="check-circle-2" class="w-3 h-3"></i> ${p.status}
+                                </p>
+                            </div>
+                            <button onclick="app.downloadSlip('${p.month}')" class="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            },
+
+            checkIn() {
+                const now = new Date();
+                const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date = now.toISOString().split('T')[0];
+                
+                this.state.attendance.unshift({ date, checkIn: time, checkOut: null, duration: null, status: 'present' });
+                localStorage.setItem('nexhr_attendance', JSON.stringify(this.state.attendance));
+                this.toast('Clocked In!', `Shift started at ${time}`, 'success');
+                this.renderAttendance();
+            },
+
+            checkOut() {
+                if(this.state.attendance[0] && !this.state.attendance[0].checkOut) {
+                    const now = new Date();
+                    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    this.state.attendance[0].checkOut = time;
+                    this.state.attendance[0].duration = 'Active';
+                    localStorage.setItem('nexhr_attendance', JSON.stringify(this.state.attendance));
+                    this.toast('Clocked Out!', `Successfully ended shift at ${time}`, 'info');
+                    this.renderAttendance();
+                } else {
+                    this.toast('Action Denied', 'Please check-in first', 'error');
+                }
+            },
+
+            toggleLeaveModal() {
+                document.getElementById('leave-modal').classList.toggle('hidden');
+            },
+
+            submitLeave() {
+                const type = document.getElementById('leave-type').value;
+                const from = document.getElementById('leave-start').value;
+                const to = document.getElementById('leave-end').value;
+                const reason = document.getElementById('leave-reason').value;
+
+                if(!from || !to || !reason) return this.toast('Missing Info', 'Please fill all fields', 'error');
+
+                this.state.leaves.unshift({ type, from, to, reason, status: 'pending' });
+                localStorage.setItem('nexhr_leaves', JSON.stringify(this.state.leaves));
+                this.toggleLeaveModal();
+                this.renderLeaves();
+                this.toast('Application Sent', 'HR is reviewing your request', 'success');
+            },
+
+            downloadSlip(month) {
+                this.toast('Generating Document', `Preparing payslip for ${month}...`, 'info');
+                setTimeout(() => {
+                    this.toast('Download Ready', 'Payslip saved to your local storage', 'success');
+                }, 1500);
+            },
+
+            toast(title, msg, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                const icons = { success: 'check-circle', error: 'x-circle', info: 'info' };
+                const colors = { success: 'border-emerald-500/50 text-emerald-400', error: 'border-rose-500/50 text-rose-400', info: 'border-indigo-500/50 text-indigo-400' };
+                
+                toast.className = `glass p-6 rounded-2xl border ${colors[type]} animate-fade-in w-80 shadow-2xl`;
+                toast.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <i data-lucide="${icons[type]}" class="w-6 h-6 mt-0.5"></i>
+                        <div>
+                            <p class="font-bold text-sm">${title}</p>
+                            <p class="text-slate-400 text-xs mt-1 leading-relaxed">${msg}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(toast);
+                lucide.createIcons();
+                setTimeout(() => toast.remove(), 4000);
+            }
+        };
+
+        // Launch
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
